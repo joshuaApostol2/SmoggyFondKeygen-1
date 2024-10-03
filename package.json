@@ -1,0 +1,22 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^18.0.6",
+    "1secmail-api": "^1.1.1",
+    "body-parser": "^1.20.3",
+    "chatbox-fca-remake": "^2.0.6",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "node-cron": "^3.0.3",
+    "ping": "^0.4.4"
+  }
+}

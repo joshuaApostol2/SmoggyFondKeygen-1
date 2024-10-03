@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Active Sessions</title>
+    <style>
+        body {
+            padding: 0;
+            background-color: #0e0e0e;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            margin: 0;
+            height: 90vh;
+        }
+
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            color: #fff;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            background: -webkit-linear-gradient(#e1e1e1, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .session-list {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .session-item {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .session-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .profile-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .session-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00f;
+        }
+
+        .session-description {
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #ff4848, #ff8989);
+            color: white;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            text-align: center;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            background: linear-gradient(90deg, #ff8989, #ff4848);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Active Sessions</h1>
+        <div class="session-list" id="sessionList"></div>
+    </div>
+
+    <script>
+        async function fetchActiveSessions() {
+            try {
+                const response = await fetch("/active-sessions");
+                const data = await response.json();
+                const sessionList = document.getElementById("sessionList");
+                sessionList.innerHTML = "";
+
+                Object.entries(data).forEach(([uid, session]) => {
+                    const sessionItem = document.createElement("div");
+                    sessionItem.classList.add("session-item");
+                    sessionItem.innerHTML = `
+                        <img src="${session.botProfile.thumbSrc}" alt="${session.botProfile.name}" class="profile-picture">
+                        <div>
+                            <div class="session-name">User ID: ${session.userID}</div>
+                            <div class="session-description">Real Name: ${session.BotName}</div>
+                            <div class="session-description">Prefix: ${session.prefix}</div>
+                        </div>
+                    `;
+                    sessionList.appendChild(sessionItem);
+                });
+            } catch (error) {
+                console.error("Error fetching active sessions:", error);
+            }
+        }
+
+        window.onload = fetchActiveSessions;
+    </script>
+</body>
+</html>
