@@ -6,6 +6,7 @@ const fs = require("fs");
 const detectTyping = require("./handle/detectTyping");
 const autoReact = require("./handle/autoReact");
 const unsendReact = require("./handle/unsendReact");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -26,61 +27,63 @@ global.NashBot = {
   MONEY: "https://frizzyelectricclients-production.up.railway.app/"
 };
 
+app.get('/offline', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'offline.html'));
+});
+
 async function loadCommands() {
   const commandPath = path.join(__dirname, "commands");
   const commandFiles = fs.readdirSync(commandPath).filter(file => file.endsWith(".js"));
-  commandFiles.forEach(file => {
+  for (const file of commandFiles) {
     const cmdFile = require(path.join(commandPath, file));
-    if (cmdFile && cmdFile.name && cmdFile.execute) {
-      cmdFile.nashPrefix = cmdFile.nashPrefix !== undefined ? cmdFile.nashPrefix : true;
+    if (cmdFile?.name && cmdFile.execute) {
+      cmdFile.nashPrefix = cmdFile.nashPrefix ?? true;
       global.NashBoT.commands.set(cmdFile.name, cmdFile);
     }
-  });
+  }
 }
 
 async function loadEvents() {
   const eventPath = path.join(__dirname, "events");
   const eventFiles = fs.readdirSync(eventPath).filter(file => file.endsWith(".js"));
-  eventFiles.forEach(file => {
+  for (const file of eventFiles) {
     const evntFile = require(path.join(eventPath, file));
-    if (evntFile && evntFile.name && typeof evntFile.onEvent === 'function') {
+    if (evntFile?.name && typeof evntFile.onEvent === 'function') {
       global.NashBoT.events.set(evntFile.name, evntFile);
     }
-  });
+  }
 }
 
 async function init() {
-  await loadCommands();
-  await loadEvents();
+  await Promise.all([loadCommands(), loadEvents()]);
   await autoLogin();
-}
-
-async function getRandomProxy() {
-  const proxies = fs.readFileSync(path.join(__dirname, "proxy.txt"), "utf-8").split("\n");
-  return proxies[Math.floor(Math.random() * proxies.length)].trim();
 }
 
 async function autoLogin() {
   const appStatePath = path.join(__dirname, "appstate.json");
   if (fs.existsSync(appStatePath)) {
     const appStates = JSON.parse(fs.readFileSync(appStatePath, "utf8"));
-    appStates.forEach(({ appState, prefix }) => {
-      const proxy = getRandomProxy();
+    for (const { appState, prefix } of appStates) {
+      const proxy = "172.64.152.210";
       login({ appState, proxy }, async (err, api) => {
         if (err) {
           console.error("Failed to login automatically:", err);
           return;
         }
-        const cuid = api.getCurrentUserID();
-        const userDetails = await api.getUserInfo(cuid);
-        const BotName = userDetails[cuid].name;
-        const botProfile = userDetails[cuid];
-        global.NashBoT.onlineUsers.set(cuid, { userID: cuid, prefix, BotName, botProfile });
-        global.NashBoT.prefixes.set(cuid, prefix);
-        setupBot(api, prefix);
+        await handleLoginSuccess(api, prefix);
       });
-    });
+    }
   }
+}
+
+async function handleLoginSuccess(api, prefix) {
+  const userID = api.getCurrentUserID();
+  const userDetails = await api.getUserInfo(userID);
+  const { name: BotName, ...botProfile } = userDetails[userID];
+
+  global.NashBoT.onlineUsers.set(userID, { userID, prefix, BotName, botProfile });
+  global.NashBoT.prefixes.set(userID, prefix);
+  setupBot(api, prefix);
 }
 
 app.post("/login", (req, res) => {
@@ -92,22 +95,17 @@ app.post("/login", (req, res) => {
 
     appStates.push({ appState, prefix });
     fs.writeFileSync(appStatePath, JSON.stringify(appStates));
-    
-    const proxy = getRandomProxy();
+
+    const proxy = "172.64.152.210"; 
     login({ appState, proxy }, async (err, api) => {
       if (err) {
         return res.status(500).send("Failed to login");
       }
-      const cuid = api.getCurrentUserID();
-      const userDetails = await api.getUserInfo(cuid);
-      const BotName = userDetails[cuid].name;
-      const botProfile = userDetails[cuid];
-      global.NashBoT.onlineUsers.set(cuid, { userID: cuid, prefix, BotName, botProfile });
-      global.NashBoT.prefixes.set(cuid, prefix);
-      setupBot(api, prefix);
+      await handleLoginSuccess(api, prefix);
       res.sendStatus(200);
     });
   } catch (error) {
+    console.error("Error parsing botState:", error);
     res.status(400).send("Invalid appState");
   }
 });
@@ -131,9 +129,7 @@ function setupBot(api, prefix) {
   }, 1000 * 60 * 15);
 
   api.listenMqtt((err, event) => {
-    if (err) {
-      return;
-    }
+    if (err) return;
     handleMessage(api, event, prefix);
     handleEvent(api, event, prefix);
     detectTyping(api, event);
@@ -143,42 +139,45 @@ function setupBot(api, prefix) {
 }
 
 async function handleEvent(api, event, prefix) {
-  const { events } = global.NashBoT;
-  try {
-    for (const { name, onEvent } of events.values()) {
+  for (const { name, onEvent } of global.NashBoT.events.values()) {
+    try {
       await onEvent({ prefix, api, event });
+    } catch (error) {
+      console.error(`Error handling event ${name}:`, error);
     }
-  } catch (error) {
-    console.error("Error handling event:", error);
   }
 }
 
 async function handleMessage(api, event, prefix) {
   if (!event.body) return;
+
   let [command, ...args] = event.body.trim().split(" ");
   if (command.startsWith(prefix)) {
     command = command.slice(prefix.length);
   }
+
   const cmdFile = global.NashBoT.commands.get(command.toLowerCase());
   if (cmdFile) {
-    const nashPrefix = cmdFile.nashPrefix !== false;
-    if (nashPrefix && !event.body.toLowerCase().startsWith(prefix)) {
+    if (cmdFile.nashPrefix !== false && !event.body.toLowerCase().startsWith(prefix)) {
       return;
     }
     try {
-      cmdFile.execute(api, event, args, prefix);
+      await cmdFile.execute(api, event, args, prefix);
     } catch (error) {
+      console.error(`Error executing command ${command}:`, error);
       api.sendMessage(`Error executing command: ${error.message}`, event.threadID);
     }
   }
 }
 
-app.get("/active-sessions", async (req, res) => {
-  const json = {};
-  global.NashBoT.onlineUsers.forEach(({ userID, prefix, BotName, botProfile }, uid) => {
-    json[uid] = { userID, prefix, BotName, botProfile }; 
-  });
-  res.json(json);
+app.get("/active-sessions", (req, res) => {
+  const sessions = Array.from(global.NashBoT.onlineUsers.values()).map(({ userID, prefix, BotName, botProfile }) => ({
+    userID,
+    prefix,
+    BotName,
+    botProfile
+  }));
+  res.json(sessions);
 });
 
 app.get("/commands", (req, res) => {

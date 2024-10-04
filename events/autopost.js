@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 
-let lastPostedHour = -1;
+let isPosting = false;
 
 module.exports = {
     name: "autopost",
@@ -31,9 +31,8 @@ module.exports = {
         };
 
         const postImage = async () => {
-            const currentHour = new Date().getHours();
-            const currentMinute = new Date().getMinutes();
-            if (currentHour === lastPostedHour && currentMinute % 35 !== 0) return;
+            if (isPosting) return; 
+            isPosting = true;
 
             try {
                 let imageUrl;
@@ -57,9 +56,10 @@ module.exports = {
                 });
 
                 fs.unlinkSync(imagePath);
-                lastPostedHour = currentHour;
             } catch (error) {
                 console.error('Error posting image:', error);
+            } finally {
+                isPosting = false; 
             }
         };
 

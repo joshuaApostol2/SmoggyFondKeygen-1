@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cron = require('node-cron');
 
-let lastSentHour = -1;
+let isSending = false;
 
 module.exports = {
     name: "automessage",
@@ -10,8 +10,8 @@ module.exports = {
     version: "1.0.0",
     async onEvent({ api }) {
         const motivation = async () => {
-            const currentHour = new Date().getHours();
-            if (currentHour === lastSentHour) return;
+            if (isSending) return; 
+            isSending = true;
 
             try {
                 const response = await axios.get("https://nash-rest-api-production.up.railway.app/quote");
@@ -31,13 +31,13 @@ module.exports = {
                         await api.sendMessage(formattedQuote, thread.threadID);
                     }
                 }
-
-                lastSentHour = currentHour;
             } catch (error) {
                 console.error('Error fetching quote:', error);
+            } finally {
+                isSending = false; 
             }
         };
-        
+
         cron.schedule('0 * * * *', () => {
             motivation();
         });

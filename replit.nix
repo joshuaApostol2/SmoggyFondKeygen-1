@@ -1,5 +1,5 @@
 {pkgs}: {
   deps = [
-    pkgs.unzipNLS
-   ];
+    pkgs.unixtools.ping
+  ];
 }

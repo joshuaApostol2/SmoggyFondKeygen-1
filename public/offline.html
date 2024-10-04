@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0e0e0e;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: -webkit-linear-gradient(#e1e1e1, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #ff4848, #ff8989);
+            color: white;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 30px;
+            border: none;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            background: linear-gradient(90deg, #ff8989, #ff4848);
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            p {
+                font-size: 1rem;
+                padding: 0 20px;
+            }
+            .btn-primary {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Offline</h1>
+    <p>You are currently offline. Please check your internet connection and try again.</p>
+    <button class="btn-primary" onclick="window.location.href='index.html';">Try Again</button>
+</body>
+</html>
