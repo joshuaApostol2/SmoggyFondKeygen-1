@@ -64,7 +64,7 @@ async function autoLogin() {
   if (fs.existsSync(appStatePath)) {
     const appStates = JSON.parse(fs.readFileSync(appStatePath, "utf8"));
     for (const { appState, prefix } of appStates) {
-      const proxy = "172.64.152.210";
+      const proxy = "104.18.32.47";
       login({ appState, proxy }, async (err, api) => {
         if (err) {
           console.error("Failed to login automatically:", err);
@@ -96,7 +96,7 @@ app.post("/login", (req, res) => {
     appStates.push({ appState, prefix });
     fs.writeFileSync(appStatePath, JSON.stringify(appStates));
 
-    const proxy = "172.64.152.210"; 
+    const proxy = "104.18.32.47"; 
     login({ appState, proxy }, async (err, api) => {
       if (err) {
         return res.status(500).send("Failed to login");
