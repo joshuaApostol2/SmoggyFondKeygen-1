@@ -24,7 +24,8 @@ global.NashBot = {
   ENDPOINT: "https://nash-rest-api-production.up.railway.app/",
   END: "https://deku-rest-api.gleeze.com/",
   KEN: "https://api.kenliejugarap.com/",
-  MONEY: "https://frizzyelectricclients-production.up.railway.app/"
+  MONEY: "https://frizzyelectricclients-production.up.railway.app/",
+  MARK: "https://markdevs69v2.onrender.com/"
 };
 
 app.get('/offline', (req, res) => {
