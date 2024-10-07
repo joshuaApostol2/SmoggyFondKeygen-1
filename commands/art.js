@@ -3,7 +3,7 @@ const { createReadStream } = require('fs');
 const { Readable } = require('stream');
 
 module.exports = {
-    name: 'generateart',
+    name: 'generateart2',
     description: 'Generate art based on the provided prompt.',
     cooldown: 3,
     nashPrefix: false,

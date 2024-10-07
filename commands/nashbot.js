@@ -1,55 +1,46 @@
-const axios = require("axios");
-
-async function nashbotAPI(prompt) {
-    try {
-        const response = await axios.get(`${global.NashBot.ENDPOINT}nashbot?prompt=${encodeURIComponent(prompt)}`);
-
-        
-        if (response.data && response.data.response) {
-            return response.data.response;
-        } else {
-            return "Unexpected response format. Please check the API or contact support.";
-        }
-    } catch (error) {
-        console.error("Error fetching data:", error.message);
-        return "Failed to fetch data. Please try again later.";
-    }
-}
+const axios = require('axios');
 
 module.exports = {
-    name: "nashbot",
-    description: "nakaw pa gago",
-    nashPrefix: true,
-    version: "1.0.0",
-    role: 0,
-    cooldowns: 5,
-    aliases: ["nashbot"],
-    async execute(api, event, args) {
-        const { threadID, messageID, senderID } = event;
-        let prompt = args.join(" ");
-        
-        if (!prompt) {
-            return api.sendMessage("Please enter a prompt to send.", threadID, messageID);
+    name: 'nash',
+    description: 'Interact with Nashbot',
+    cooldown: 3,
+    nashPrefix: false,
+    execute: async (api, event, args) => {
+        const input = args.join(' ');
+        const uid = event.senderID;
+
+        if (!input) {
+            return api.sendMessage('Please enter a message for Nashbot.', event.threadID, event.messageID);
         }
 
-        api.sendMessage(
-            "[✦ Nashbot ✦]\n\n" +
-            "Processing your request...",
-            threadID,
-            async (err, info) => {
-                if (err) return;
-                try {
-                    const response = await nashbotAPI(prompt);
-                    api.editMessage(
-                        "[ ✦Nashbot✦]\n\n" +
-                        `${response}\n\nHow to unsend a message?, react to it with a thumbs up (👍) the bot will automatically unsend the message.`,
-                        info.messageID
-                    );
-                } catch (g) {
-                    api.sendMessage("Error processing your request: " + g.message, threadID, messageID);
-                }
-            },
-            messageID
+        const initialMessage = await api.sendMessage(
+            "[ Nashbot ]\n\n" +
+            "⏳ Searching for answer...",
+            event.threadID,
+            event.messageID
         );
+
+        try {
+            const response = await axios.get(`https://nash-rest-api.onrender.com/nashbot?q=${encodeURIComponent(input)}`);
+            const result = response.data.response;
+
+            if (!result) {
+                throw new Error('No valid response received from the API.');
+            }
+
+            api.editMessage(
+                "[ Nashbot ]\n\n" +
+                `${result}`,
+                event.threadID,
+                initialMessage.messageID
+            );
+        } catch (error) {
+            api.editMessage(
+                "[ Nashbot ]\n\n" +
+                "❌ An error occurred: " + error.message,
+                event.threadID,
+                initialMessage.messageID
+            );
+        }
     },
 };
