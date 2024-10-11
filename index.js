@@ -25,6 +25,7 @@ global.NashBot = {
   END: "https://deku-rest-api.gleeze.com/",
   KEN: "https://api.kenliejugarap.com/",
   MONEY: "https://frizzyelectricclients-production.up.railway.app/",
+  JOSHUA: "https://rest-api.joshuaapostol.site/"
 };
 
 app.get('/offline', (req, res) => {
