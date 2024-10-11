@@ -22,7 +22,7 @@ global.NashBoT = {
 
 global.NashBot = {
   ENDPOINT: "https://nash-rest-api-production.up.railway.app/",
-  END: "https://deku-rest-api.gleeze.com/",
+  END: "https://deku-rest-apis.ooguy.com/",
   KEN: "https://api.kenliejugarap.com/",
   MONEY: "https://frizzyelectricclients-production.up.railway.app/",
   JOSHUA: "https://rest-api.joshuaapostol.site/"
