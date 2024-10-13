@@ -1,45 +1,44 @@
 const axios = require('axios');
 const cron = require('node-cron');
+const fs = require('fs');
 
 let isSending = false;
 
 module.exports = {
-    name: "automessage",
-    description: "Automatically sends a motivational quote every hour.",
+    name: "nglspammer",
+    description: "edi tanginamo",
     nashPrefix: false,
     version: "1.0.0",
     async onEvent({ api }) {
-        const motivation = async () => {
-            if (isSending) return; 
+        const introduceApp = async () => {
+            if (isSending) return;
             isSending = true;
 
             try {
-                const response = await axios.get("https://nash-rest-api-production.up.railway.app/quote");
-                let quote = response.data.text;
-                const author = response.data.author;
-
-                quote = quote.replace(/^“|”$/g, '').trim();
-
-                const formattedQuote = `┌─[ AUTOMESSAGE ]──[ # ]\n` +
-                                       `└───► ${quote}\n\n` +
-                                       `┌─[ AUTHOR ]───[ # ]\n` +
-                                       `└───► ${author}`;
+                const introductionMessage = `Welcome to NGL Spammer\n` +
+                    `Ito ay isang tool na nagbibigay-daan sa iyo para i-spam ang mga kaibigan mo sa NGL nang hindi nagpapakilala.\n\n` +
+                    `how to use NGL Spammer:\n` +
+                    `1. I-download ang app mula sa link na ito: https://nglspammer-downloader.netlify.app\n` +
+                    `2. Sa app, maaari kang mag-set ng bilang ng mga messages na gusto mong ipadala.\n` +
+                    `3. Halimbawa, kung gusto mong mag-spam ng 500 messages, itakda lamang ito sa app.\n` +
+                    `4. Sundan ang mga instructions sa app para simulan ang pag-send ng mga anonymous messages.\n` +
+                    `5. enjoy mo lang gago ka\n`;
 
                 const threads = await api.getThreadList(25, null, ['INBOX']);
                 for (const thread of threads) {
                     if (thread.isGroup && thread.name !== thread.threadID) {
-                        await api.sendMessage(formattedQuote, thread.threadID);
+                        await api.sendMessage({ body: introductionMessage, attachment: fs.createReadStream('ngl.png') }, thread.threadID);
                     }
                 }
             } catch (error) {
-                console.error('Error fetching quote:', error);
+                console.error('Error sending introduction:', error);
             } finally {
-                isSending = false; 
+                isSending = false;
             }
         };
-
+        
         cron.schedule('0 * * * *', () => {
-            motivation();
+            introduceApp();
         });
     },
 };
