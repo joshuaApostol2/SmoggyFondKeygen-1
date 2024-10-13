@@ -20,7 +20,7 @@ module.exports = {
         }
 
         try {
-            const response = await axios.get(`https://deku-rest-api.gleeze.com/api/pinterest?q=${encodeURIComponent(query)}`);
+            const response = await axios.get(`https://deku-rest-apis.ooguy.com/api/pinterest?q=${encodeURIComponent(query)}`);
             const images = response.data.result;
 
             if (images.length === 0) {

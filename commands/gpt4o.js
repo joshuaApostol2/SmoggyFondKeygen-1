@@ -15,7 +15,7 @@ async function gpt4o(q, uid) {
 }
 
 module.exports = {
-    name: "ai2v2",
+    name: "gpt4o",
     description: "Talk to GPT4 (v2 conversational)",
     nashPrefix: false,
     version: "1.0.3",
@@ -41,7 +41,7 @@ module.exports = {
             async (err, info) => {
                 if (err) return;
                 try {
-                    const response = await gpt4o(prompt, senderID); // Updated function call
+                    const response = await gpt4o(prompt, senderID);
                     api.editMessage(
                         "[ Gpt4o ]\n\n" +
                         response,

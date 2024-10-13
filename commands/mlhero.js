@@ -16,7 +16,7 @@ module.exports = {
             return api.sendMessage("Please provide a hero name.", threadID, messageID);
         }
 
-        const url = `https://deku-rest-api.gleeze.com/api/mlhero?q=${encodeURIComponent(heroName)}`;
+        const url = `https://deku-rest-apis.ooguy.com/api/mlhero?q=${encodeURIComponent(heroName)}`;
         
         axios.get(url)
             .then(response => {

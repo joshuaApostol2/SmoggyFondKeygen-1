@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 module.exports = {
-    name: "simisimi",
+    name: "sim",
     description: "Talk to Simisimi",
     nashPrefix: false,
     version: "1.0.0",

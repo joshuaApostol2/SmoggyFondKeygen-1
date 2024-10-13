@@ -1,35 +1,54 @@
-const axios = require('axios');
+const axios = require("axios");
 
 module.exports = {
-    name: 'ai',
-    description: 'Interact with GPT-3.5 Turbo',
-    cooldown: 3,
+    name: "ai",
+    description: "Interact with GPT4o model",
     nashPrefix: false,
-    execute: async (api, event, args) => {
-        const input = args.join(' ');
-        const uid = event.senderID;
-
-        if (!input) {
-            return api.sendMessage('Please enter a prompt.', event.threadID, event.messageID);
+    version: "1.0.0",
+    role: 0,
+    cooldowns: 5,
+    aliases: ["ai"],
+    execute(api, event, args, prefix) {
+        const { threadID, messageID, senderID } = event;
+        let prompt = args.join(" ");
+        if (!prompt) return api.sendMessage("Please enter a prompt.", threadID, messageID);
+        
+        if (!global.handle) {
+            global.handle = {};
+        }
+        if (!global.handle.replies) {
+            global.handle.replies = {};
         }
 
-        api.sendMessage('Processing your request...', event.threadID, event.messageID);
-
-        try {
-            const response = await axios.get(`${global.NashBot.END}new/gpt-3_5-turbo?prompt=${encodeURIComponent(input)}`);
-            const result = response.data.result.reply;
-
-            if (!result) {
-                throw new Error('No valid response received from the API.');
-            }
-
-            api.sendMessage(
-                `🤖 AI Response\n━━━━━━━━━━━━━━━━━━━\n${result}\n\nHow to unsend a message?, react to it with a thumbs up (👍) the bot will automatically unsend the message.`,
-                event.threadID,
-                event.messageID
-            );
-        } catch (error) {
-            api.sendMessage(`An error occurred: ${error.message}`, event.threadID, event.messageID);
-        }
+        api.sendMessage(
+            "[ AI GPT ]\n\n" +
+            "⏳ Searching for answer...",
+            threadID,
+            (err, info) => {
+                if (err) return;
+                
+                axios.get(`${global.NashBot.JOSHUA}/gpt4o?prompt=${encodeURIComponent(prompt)}`)
+                    .then(response => {
+                        const reply = response.data.response;
+                        api.editMessage(
+                            "[ AI GPT ]\n\n" +
+                            reply,
+                            info.messageID
+                        );
+                        global.handle.replies[info.messageID] = {
+                            cmdname: module.exports.name,
+                            this_mid: info.messageID,
+                            this_tid: info.threadID,
+                            tid: threadID,
+                            mid: messageID,
+                        };
+                    })
+                    .catch(error => {
+                        console.error("Error fetching data:", error.message);
+                        api.editMessage("Failed to fetch data. Please try again later.", info.messageID);
+                    });
+            },
+            messageID
+        );
     },
 };
