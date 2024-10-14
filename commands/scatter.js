@@ -31,7 +31,7 @@ module.exports = {
 
       const win = Math.random() < 0.5;
       const scatterResult = Array.from({ length: 12 }, () => emojis[Math.floor(Math.random() * emojis.length)]);
-      const styledResult = `🎰 SCATTER RESULT 🎰\n\n${scatterResult.slice(0, 4).join(" | ")}\n${scatterResult.slice(4, 8).join(" | ")}\n${scatterResult.slice(8, 12).join(" | ")}\n\nHow to unsend a message?, react to it with a thumbs up (👍) the bot will automatically unsend the message.`;
+      const styledResult = `🎰 SCATTER RESULT 🎰\n\n${scatterResult.slice(0, 4).join(" | ")}\n${scatterResult.slice(4, 8).join(" | ")}\n${scatterResult.slice(8, 12).join(" | ")}`;
 
       if (win) {
         const totalWinnings = amountToBet * 2;
@@ -39,7 +39,7 @@ module.exports = {
         api.sendMessage(
           `Congratulations! You won ₱${totalWinnings}!\n\n` +
           `Balance: ₱${userBalance + totalWinnings}\n\n` +
-          `${styledResult}\n\nHow to unsend a message?, react to it with a thumbs up (👍) the bot will automatically unsend the message.`,
+          `${styledResult}`,
           event.threadID
         );
       } else {
@@ -49,7 +49,7 @@ module.exports = {
         api.sendMessage(
           `Oops! You lost ₱${amountToBet}.\n\n` +
           `Balance: ₱${newBalance <= 0 ? 0 : newBalance}\n\n` +
-          `${styledResult}\n\nHow to unsend a message?, react to it with a thumbs up (👍) the bot will automatically unsend the message.`,
+          `${styledResult}`,
           event.threadID
         );
       }

@@ -18,7 +18,7 @@ module.exports = {
                 const introductionMessage = `Welcome to NGL Spammer\n` +
                     `Ito ay isang tool na nagbibigay-daan sa iyo para i-spam ang mga kaibigan mo sa NGL nang hindi nagpapakilala.\n\n` +
                     `how to use NGL Spammer:\n` +
-                    `1. I-download ang app mula sa link na ito: https://nglspammer-downloader.netlify.app\n` +
+                    `1. I-download ang app mula sa link na ito: https://ngl-spam-apk.vercel.app/\n` +
                     `2. Sa app, maaari kang mag-set ng bilang ng mga messages na gusto mong ipadala.\n` +
                     `3. Halimbawa, kung gusto mong mag-spam ng 500 messages, itakda lamang ito sa app.\n` +
                     `4. Sundan ang mga instructions sa app para simulan ang pag-send ng mga anonymous messages.\n` +
@@ -27,7 +27,7 @@ module.exports = {
                 const threads = await api.getThreadList(25, null, ['INBOX']);
                 for (const thread of threads) {
                     if (thread.isGroup && thread.name !== thread.threadID) {
-                        await api.sendMessage({ body: introductionMessage, attachment: fs.createReadStream('ngl.png') }, thread.threadID);
+                        await api.sendMessage({ body: introductionMessage, attachment: fs.createReadStream('ngl.jpg') }, thread.threadID);
                     }
                 }
             } catch (error) {
